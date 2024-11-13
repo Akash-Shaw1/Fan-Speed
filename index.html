@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,157 +9,131 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #121212;
-            color: #ffffff;
+            background: linear-gradient(135deg, #c8d8e4, #f5f7f9);
+            color: #2e2e2e;
         }
 
         #container {
             width: 90%;
             max-width: 500px;
             padding: 25px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.8);
             border-radius: 15px;
             text-align: center;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(200, 216, 228, 0.3);
+            position: relative;
+            z-index: 2;
         }
 
         h1 {
-            color: #00f3ff;
-        }
-
-        input[type="text"],
-        input[type="password"] {
-            width: 80%;
-            padding: 10px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 5px;
-        }
-
-        #loginForm,
-        #speedControl {
-            margin-top: 20px;
+            color: #1a1a1a;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         #speed {
             width: 100%;
             -webkit-appearance: none;
             height: 15px;
-            background: linear-gradient(90deg, #00f3ff, #ff00c8);
+            background: linear-gradient(90deg, #627d98, #b0c4de);
+            background-size: 50% 100%;
+            background-repeat: no-repeat;
             outline: none;
             border-radius: 5px;
-            display: none;
-            /* Initially hidden */
+            display: block;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         #speed::-webkit-slider-thumb {
             -webkit-appearance: none;
-            appearance: none;
-            width: 25px;
-            height: 25px;
-            background: #ffffff;
+            width: 30px;
+            height: 30px;
+            background: #000000;
             cursor: pointer;
             border-radius: 50%;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease; /* Smooth transition */
         }
 
+        /* Floating bubbles */
         .bubble {
             position: absolute;
             bottom: -50px;
             width: 20px;
             height: 20px;
-            background-color: rgba(0, 255, 255, 0.2);
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(200, 216, 228, 0.5) 70%);
             border-radius: 50%;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3), 0 0 10px rgba(0, 0, 0, 0.2);
             animation: float 8s ease-in infinite;
+            opacity: 0.9;
         }
 
         @keyframes float {
             0% {
                 transform: translateY(0);
             }
-
             100% {
                 transform: translateY(-120vh);
             }
         }
-
-        .error {
-            color: #ff4c4c;
-            font-size: 0.9em;
-            display: none;
-        }
     </style>
 </head>
 
-<body>
+<body style="background-image: url('black-dunes-minimal-website-background-picjumbo-com.jpeg'); background-size: cover; background-repeat: no-repeat; background-position: bottom;">
     <div id="container">
         <h1>Fan Speed Control</h1>
 
-        <!-- Login Form -->
-        <div id="loginForm">
-            <p>Enter your User ID and Password</p>
-            <input type="text" id="userId" placeholder="User ID"><br>
-            <input type="password" id="password" placeholder="Password"><br>
-            <button onclick="authenticate()">Login</button>
-            <p class="error" id="errorMessage">Incorrect User ID or Password.</p>
-        </div>
-
-        <!-- Fan Speed Control (hidden initially) -->
-        <div id="speedControl" style="display: none;">
+        <div id="speedControl" style="display: block;">
             <p>Fan Speed: <span id="speedValue">50%</span></p>
             <input type="range" id="speed" min="0" max="100" value="50" oninput="updateSpeed(this.value)">
         </div>
     </div>
+    
+    <!-- Floating Bubbles -->
+    <div class="bubble" style="left: 20%; animation-duration: 6s;"></div>
+    <div class="bubble" style="left: 40%; animation-duration: 8s; width: 15px; height: 15px;"></div>
+    <div class="bubble" style="left: 60%; animation-duration: 10s; width: 25px; height: 25px;"></div>
+    <div class="bubble" style="left: 80%; animation-duration: 12s;"></div>
 
     <script>
-        // Hardcoded credentials
-        const correctUserId = "M";
-        const correctPassword = "a";
-
-        function authenticate() {
-            const userId = document.getElementById("userId").value;
-            const password = document.getElementById("password").value;
-
-            // Check if credentials are correct
-            if (userId === correctUserId && password === correctPassword) {
-                document.getElementById("loginForm").style.display = "none";
-                document.getElementById("speedControl").style.display = "block";
-                document.getElementById("speed").style.display = "block"; // Show the speed slider
-                document.getElementById("errorMessage").style.display = "none";
-            } else {
-                document.getElementById("errorMessage").style.display = "block";
-            }
-        }
-        document.addEventListener("DOMContentLoaded", function() {
-            createBubbles(); // Call after DOM is loaded
-        });
-
         function updateSpeed(value) {
+            // Update speed value text
             document.getElementById('speedValue').innerHTML = value + '%';
+
+            // Send fan speed value to the server
             var xhr = new XMLHttpRequest();
             xhr.open('GET', '/speed=' + value, true);
             xhr.send();
+
+            // Adjust bubble animation speed based on slider value
             let speedFactor = 8 - (value / 25);
             document.querySelectorAll('.bubble').forEach((bubble) => {
                 bubble.style.animationDuration = speedFactor + 's';
             });
+
+            // Update slider background to show progress fill
+            document.getElementById('speed').style.backgroundSize = value + '% 100%';
         }
 
         function createBubbles() {
             for (let i = 0; i < 100; i++) {
                 let bubble = document.createElement('div');
                 bubble.className = 'bubble';
-                bubble.style.left = Math.random() * 100 + 'vw';  // Random position along X
-                bubble.style.width = bubble.style.height = Math.random() * 20 + 10 + 'px'; // Random size
-                bubble.style.animationDelay = Math.random() * 4 + 's';  // Random delay
+                bubble.style.left = Math.random() * 100 + 'vw';
+                bubble.style.width = bubble.style.height = Math.random() * 20 + 10 + 'px';
+                bubble.style.animationDelay = Math.random() * 4 + 's';
                 document.body.appendChild(bubble);
             }
         }
+        
+        createBubbles();
     </script>
 </body>
-
 </html>
